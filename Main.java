@@ -8,8 +8,11 @@ import java.util.regex.Pattern;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        System.out.printf("\nTotal: $%.2f", getTotal(readInput(scanner)));
+    }
+
+    public static ArrayList<String> readInput(Scanner scanner) {
         ArrayList<String> list = new ArrayList<>();
-        double total = 0;
 
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -19,8 +22,15 @@ public class Main {
             list.add(line);
         }
 
+        return list;
+    }
+
+    public static double getTotal(ArrayList<String> list) {
+        double total = 0;
+
+        Pattern pattern = Pattern.compile("([\\w']*\\s+)+([$])(\\d+[.]\\d{2})");
+
         for (String s : list) {
-            Pattern pattern = Pattern.compile("([\\w']*\\s+)+([$])(\\d+[.]\\d{2})");
             Matcher matcher = pattern.matcher(s);
             if (matcher.find()) {
                 System.out.println(matcher.group(0));
@@ -28,6 +38,6 @@ public class Main {
             }
         }
 
-        System.out.printf("\nTotal: $%.2f", total);
+        return total;
     }
 }
