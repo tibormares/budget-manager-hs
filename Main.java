@@ -25,21 +25,10 @@ public class Main {
                 """);
     }
 
-    public void printTypeOfPurchase() {
-        System.out.print("""
-                Choose the type of purchase
-                1) Food
-                2) Clothes
-                3) Entertainment
-                4) Other
-                5) Back
-                """);
-    }
-
     public String processTypeOfPurchase(Scanner scanner) {
         int number = scanner.nextInt();
         scanner.nextLine();
-        System.out.println();
+        printLine();
         switch (number) {
             case 1 -> {
                 return "Food";
@@ -65,17 +54,17 @@ public class Main {
             printMenu();
             int number = scanner.nextInt();
             scanner.nextLine();
-            System.out.println();
+            printLine();
             switch (number) {
                 case 1 -> {
                     addIncome(scanner);
-                    System.out.println();
+                    printLine();
                 }
                 case 2 -> addPurchase(scanner);
                 case 3 -> showPurchasedProducts(scanner);
                 case 4 -> {
                     printBalance();
-                    System.out.println();
+                    printLine();
                 }
                 case 0 -> {
                     System.out.println("Bye!");
@@ -93,7 +82,7 @@ public class Main {
 
     public void addPurchase(Scanner scanner) {
         while (true) {
-            printTypeOfPurchase();
+            printTypeOfPurchase(false);
             String category = processTypeOfPurchase(scanner);
 
             if (category.equals("Back")) {
@@ -109,26 +98,29 @@ public class Main {
                 setBalance(getBalance() - price);
                 System.out.println("Purchase was added!");
             }
-            System.out.println();
+            printLine();
         }
     }
 
-    public void printTypeOfPurchases() {
+    public void printTypeOfPurchase(Boolean plural) {
+        System.out.println("Choose the type of " + (plural ? "purchases" : "purchase"));
         System.out.println("""
-                Choose the type of purchases
                 1) Food
                 2) Clothes
                 3) Entertainment
-                4) Other
-                5) All
-                6) Back
-                """);
+                4) Other""");
+        if (plural) {
+            System.out.println("5) All");
+            System.out.println("6) Back");
+        } else {
+            System.out.println("5) Back");
+        }
     }
 
     public String processTypeOfPurchases(Scanner scanner) {
         int number = scanner.nextInt();
         scanner.nextLine();
-        System.out.println();
+        printLine();
         switch (number) {
             case 1 -> {
                 return "Food";
@@ -158,7 +150,7 @@ public class Main {
             return;
         }
         while (true) {
-            printTypeOfPurchases();
+            printTypeOfPurchase(true);
             String category = processTypeOfPurchases(scanner);
 
             if (category.equals("Back")) {
@@ -179,7 +171,7 @@ public class Main {
             } else {
                 System.out.printf("Total sum: $%.2f\n", sum);
             }
-            System.out.println();
+            printLine();
         }
     }
 
@@ -193,6 +185,10 @@ public class Main {
 
     public void printBalance() {
         System.out.printf("Balance: $%.2f\n", getBalance());
+    }
+
+    public void printLine() {
+        System.out.println();
     }
 
 }
