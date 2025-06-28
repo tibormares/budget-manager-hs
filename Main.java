@@ -25,6 +25,41 @@ public class Main {
                 """);
     }
 
+    public void printTypeOfPurchase() {
+        System.out.print("""
+                Choose the type of purchase
+                1) Food
+                2) Clothes
+                3) Entertainment
+                4) Other
+                5) Back
+                """);
+    }
+
+    public String processTypeOfPurchase(Scanner scanner) {
+        int number = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println();
+        switch (number) {
+            case 1 -> {
+                return "Food";
+            }
+            case 2 -> {
+                return "Clothes";
+            }
+            case 3 -> {
+                return "Entertainment";
+            }
+            case 4 -> {
+                return "Other";
+            }
+            case 5 -> {
+                return "Back";
+            }
+        }
+        return "";
+    }
+
     public void processCommandNumber(Scanner scanner) {
         while (true) {
             printMenu();
@@ -32,16 +67,21 @@ public class Main {
             scanner.nextLine();
             System.out.println();
             switch (number) {
-                case 1 -> addIncome(scanner);
+                case 1 -> {
+                    addIncome(scanner);
+                    System.out.println();
+                }
                 case 2 -> addPurchase(scanner);
-                case 3 -> showPurchasedProducts();
-                case 4 -> printBalance();
+                case 3 -> showPurchasedProducts(scanner);
+                case 4 -> {
+                    printBalance();
+                    System.out.println();
+                }
                 case 0 -> {
                     System.out.println("Bye!");
                     return;
                 }
             }
-            System.out.println();
         }
     }
 
@@ -52,25 +92,94 @@ public class Main {
     }
 
     public void addPurchase(Scanner scanner) {
-        System.out.println("Enter purchase name:");
-        String name = scanner.nextLine();
-        System.out.println("Enter its price:");
-        double price = scanner.nextDouble();
-        products.add(new Product(name, price));
-        setBalance(getBalance() - price);
-        System.out.println("Purchase was added!");
+        while (true) {
+            printTypeOfPurchase();
+            String category = processTypeOfPurchase(scanner);
+
+            if (category.equals("Back")) {
+                break;
+            }
+
+            if (!category.isEmpty()) {
+                System.out.println("Enter purchase name:");
+                String name = scanner.nextLine();
+                System.out.println("Enter its price:");
+                double price = scanner.nextDouble();
+                products.add(new Product(name, price, category));
+                setBalance(getBalance() - price);
+                System.out.println("Purchase was added!");
+            }
+            System.out.println();
+        }
     }
 
-    public void showPurchasedProducts() {
-        if (products.isEmpty()) {
-            System.out.println("The purchase list is empty");
-        } else {
-            double sum = 0;
-            for (Product p : this.products) {
-                System.out.println(p);
-                sum += p.getPrice();
+    public void printTypeOfPurchases() {
+        System.out.println("""
+                Choose the type of purchases
+                1) Food
+                2) Clothes
+                3) Entertainment
+                4) Other
+                5) All
+                6) Back
+                """);
+    }
+
+    public String processTypeOfPurchases(Scanner scanner) {
+        int number = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println();
+        switch (number) {
+            case 1 -> {
+                return "Food";
             }
-            System.out.printf("Total sum: $%.2f\n", sum);
+            case 2 -> {
+                return "Clothes";
+            }
+            case 3 -> {
+                return "Entertainment";
+            }
+            case 4 -> {
+                return "Other";
+            }
+            case 5 -> {
+                return "All";
+            }
+            case 6 -> {
+                return "Back";
+            }
+        }
+        return "";
+    }
+
+    public void showPurchasedProducts(Scanner scanner) {
+        if (products.isEmpty()) {
+            System.out.println("The purchase list is empty!");
+            return;
+        }
+        while (true) {
+            printTypeOfPurchases();
+            String category = processTypeOfPurchases(scanner);
+
+            if (category.equals("Back")) {
+                break;
+            }
+
+            double sum = 0;
+            System.out.println(category + ":");
+            for (Product p : this.products) {
+                if (category.equals("All") || p.getCategory().name().equals(category)) {
+                    System.out.println(p);
+                    sum += p.getPrice();
+                }
+            }
+
+            if (sum == 0) {
+                System.out.println("The purchase list is empty!");
+            } else {
+                System.out.printf("Total sum: $%.2f\n", sum);
+            }
+            System.out.println();
         }
     }
 

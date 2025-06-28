@@ -2,28 +2,22 @@ package budget;
 
 public class Product {
 
-    String name;
-    double price;
+    private String name;
+    private double price;
+    private Category category;
 
-    public Product(String name, double price) {
+    public Product(String name, double price, String category) {
         this.name = name;
         this.price = price;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        this.category = Category.valueOf(category);
     }
 
     public double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public Category getCategory() {
+        return category;
     }
 
     @Override
