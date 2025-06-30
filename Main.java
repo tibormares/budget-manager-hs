@@ -1,5 +1,6 @@
 package budget;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -21,8 +22,50 @@ public class Main {
                 2) Add purchase
                 3) Show list of purchases
                 4) Balance
+                5) Save
+                6) Load
                 0) Exit
                 """);
+    }
+
+    public void savePurchasesIntoFile() {
+        try (FileWriter writer = new FileWriter("purchases.txt")) {
+            if (!products.isEmpty()) {
+                writer.write(balance + "\n");
+                for (Product p : products) {
+                    writer.write(p.getName() + "," + p.getPrice() + "," + p.getCategory() + "\n");
+                }
+                System.out.println("Purchases were saved!");
+            } else {
+                System.out.println("None purchases to save.");
+            }
+        } catch (IOException e) {
+            System.out.println("Could not be saved: " + e);
+        }
+        printLine();
+    }
+
+    public void loadPurchasesFromFile() {
+        try (Scanner scanner = new Scanner(new FileReader("purchases.txt"))) {
+            if (!scanner.hasNextLine()) {
+                System.out.println("Nothing to load.");
+                printLine();
+                return;
+            } else {
+                String balance = scanner.nextLine();
+                this.balance = Double.parseDouble(balance);
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    String[] parts = line.split(",");
+                    Product p = new Product(parts[0], Double.parseDouble(parts[1]), parts[2]);
+                    products.add(p);
+                }
+                System.out.println("Purchases were loaded!");
+            }
+        } catch (IOException e) {
+            System.out.println("File could not be loaded: " + e);
+        }
+        printLine();
     }
 
     public String processTypeOfPurchase(Scanner scanner) {
@@ -66,6 +109,8 @@ public class Main {
                     printBalance();
                     printLine();
                 }
+                case 5 -> savePurchasesIntoFile();
+                case 6 -> loadPurchasesFromFile();
                 case 0 -> {
                     System.out.println("Bye!");
                     return;
@@ -147,6 +192,7 @@ public class Main {
     public void showPurchasedProducts(Scanner scanner) {
         if (products.isEmpty()) {
             System.out.println("The purchase list is empty!");
+            printLine();
             return;
         }
         while (true) {
