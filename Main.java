@@ -1,9 +1,7 @@
 package budget;
 
-import javax.swing.text.DefaultEditorKit;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -70,30 +68,6 @@ public class Main {
         printLine();
     }
 
-    public String processTypeOfPurchase(Scanner scanner) {
-        int number = scanner.nextInt();
-        scanner.nextLine();
-        printLine();
-        switch (number) {
-            case 1 -> {
-                return "Food";
-            }
-            case 2 -> {
-                return "Clothes";
-            }
-            case 3 -> {
-                return "Entertainment";
-            }
-            case 4 -> {
-                return "Other";
-            }
-            case 5 -> {
-                return "Back";
-            }
-        }
-        return "";
-    }
-
     public void processCommandNumber(Scanner scanner) {
         while (true) {
             printMenu();
@@ -151,7 +125,7 @@ public class Main {
             System.out.println("The purchase list is empty!");
             printLine();
         } else {
-            double sum = printProducts("All");
+            double sum = printProductsAndGetSum("All");
             System.out.println("Total: $" + sum);
             printLine();
         }
@@ -224,8 +198,8 @@ public class Main {
 
     public void addPurchase(Scanner scanner) {
         while (true) {
-            printTypeOfPurchase(false);
-            String category = processTypeOfPurchase(scanner);
+            printPurchaseCategoryMenu(false);
+            String category = readCategoryChoice(scanner, false);
 
             if (category.equals("Back")) {
                 break;
@@ -252,7 +226,7 @@ public class Main {
                 4) Other""");
     }
 
-    public void printTypeOfPurchase(Boolean plural) {
+    public void printPurchaseCategoryMenu(Boolean plural) {
         System.out.println("Choose the type of " + (plural ? "purchases" : "purchase"));
         printTypes();
         if (plural) {
@@ -263,7 +237,7 @@ public class Main {
         }
     }
 
-    public String processTypeOfPurchases(Scanner scanner) {
+    public String readCategoryChoice(Scanner scanner, boolean plural) {
         int number = scanner.nextInt();
         scanner.nextLine();
         printLine();
@@ -281,10 +255,11 @@ public class Main {
                 return "Other";
             }
             case 5 -> {
-                return "All";
+                if (plural) return "All";
+                return "Back";
             }
             case 6 -> {
-                return "Back";
+                if (plural) return "Back";
             }
         }
         return "";
@@ -297,14 +272,14 @@ public class Main {
             return;
         }
         while (true) {
-            printTypeOfPurchase(true);
-            String category = processTypeOfPurchases(scanner);
+            printPurchaseCategoryMenu(true);
+            String category = readCategoryChoice(scanner, true);
 
             if (category.equals("Back")) {
                 break;
             }
 
-            double sum = printProducts(category);
+            double sum = printProductsAndGetSum(category);
 
             if (sum != 0) {
                 System.out.printf("Total sum: $%.2f\n", sum);
@@ -313,7 +288,7 @@ public class Main {
         }
     }
 
-    private double printProducts(String category) {
+    public double printProductsAndGetSum(String category) {
         double sum = 0;
         System.out.println(category + ":");
         for (Product p : this.products) {
