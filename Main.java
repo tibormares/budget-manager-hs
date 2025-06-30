@@ -1,8 +1,9 @@
 package budget;
 
+import javax.swing.text.DefaultEditorKit;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -24,6 +25,7 @@ public class Main {
                 4) Balance
                 5) Save
                 6) Load
+                7) Analyze (Sort)
                 0) Exit
                 """);
     }
@@ -111,12 +113,107 @@ public class Main {
                 }
                 case 5 -> savePurchasesIntoFile();
                 case 6 -> loadPurchasesFromFile();
+                case 7 -> printSortMenu(scanner);
                 case 0 -> {
                     System.out.println("Bye!");
                     return;
                 }
             }
         }
+    }
+
+    public void printSortMenu(Scanner scanner) {
+        while (true) {
+            System.out.println("""
+                    How do you want to sort?
+                    1) Sort all purchases
+                    2) Sort by type
+                    3) Sort certain type
+                    4) Back""");
+            int number = scanner.nextInt();
+            scanner.nextLine();
+            printLine();
+            switch (number) {
+                case 1 -> sortAll();
+                case 2 -> sortByType();
+                case 3 -> sortCategory(scanner);
+                case 4 -> {
+                    return;
+                }
+            }
+        }
+    }
+
+    public void sortAll() {
+        // sort the entire shopping list and display it so that the most expensive purchases are at the top of the list
+        products.sort(Comparator.comparing(Product::getPrice).reversed());
+        if (products.isEmpty()) {
+            System.out.println("The purchase list is empty!");
+            printLine();
+        } else {
+            double sum = printProducts("All");
+            System.out.println("Total: $" + sum);
+            printLine();
+        }
+    }
+
+    public void sortByType() {
+        Map<String, Double> sums = new HashMap<>();
+        sums.put("Food", 0.0);
+        sums.put("Entertainment", 0.0);
+        sums.put("Clothes", 0.0);
+        sums.put("Other", 0.0);
+
+        for (Product p : products) {
+            String category = p.getCategory().name();
+            sums.put(category, sums.get(category) + p.getPrice());
+        }
+
+        List<Map.Entry<String, Double>> sortedList = new ArrayList<>(sums.entrySet());
+        sortedList.sort((category1, category2) ->
+            Double.compare(category2.getValue(), category1.getValue()));
+
+        System.out.println("Types:");
+        for (Map.Entry<String, Double> entry : sortedList) {
+            System.out.printf("%s - $%.2f\n", entry.getKey(), entry.getValue());
+        }
+
+        double total = sums.values().stream().mapToDouble(Double::doubleValue).sum();
+        System.out.printf("Total sum: $%.2f\n", total);
+        printLine();
+    }
+
+    public void sortCategory(Scanner scanner) {
+        System.out.println("Choose the type of purchase");
+        printTypes();
+        int number = scanner.nextInt();
+        scanner.nextLine();
+        printLine();
+        String category = "";
+        switch (number) {
+            case 1 -> category = "Food";
+            case 2 -> category = "Clothes";
+            case 3 -> category = "Entertainment";
+            case 4 -> category = "Other";
+        }
+        double sum = 0;
+        List<Product> filteredProducts = new ArrayList<>();
+        for (Product p : this.products) {
+            if (p.getCategory().name().equals(category)) {
+                filteredProducts.add(p);
+                sum += p.getPrice();
+            }
+        }
+        if (sum == 0) {
+            System.out.println("The purchase list is empty!");
+        } else {
+            filteredProducts.sort(Comparator.comparing(Product::getPrice).reversed());
+            for (Product p : filteredProducts) {
+                System.out.println(p);
+            }
+            System.out.printf("Total sum: $%.2f\n", sum);
+        }
+        printLine();
     }
 
     public void addIncome(Scanner scanner) {
@@ -147,13 +244,17 @@ public class Main {
         }
     }
 
-    public void printTypeOfPurchase(Boolean plural) {
-        System.out.println("Choose the type of " + (plural ? "purchases" : "purchase"));
+    public void printTypes() {
         System.out.println("""
                 1) Food
                 2) Clothes
                 3) Entertainment
                 4) Other""");
+    }
+
+    public void printTypeOfPurchase(Boolean plural) {
+        System.out.println("Choose the type of " + (plural ? "purchases" : "purchase"));
+        printTypes();
         if (plural) {
             System.out.println("5) All");
             System.out.println("6) Back");
@@ -203,22 +304,28 @@ public class Main {
                 break;
             }
 
-            double sum = 0;
-            System.out.println(category + ":");
-            for (Product p : this.products) {
-                if (category.equals("All") || p.getCategory().name().equals(category)) {
-                    System.out.println(p);
-                    sum += p.getPrice();
-                }
-            }
+            double sum = printProducts(category);
 
-            if (sum == 0) {
-                System.out.println("The purchase list is empty!");
-            } else {
+            if (sum != 0) {
                 System.out.printf("Total sum: $%.2f\n", sum);
             }
             printLine();
         }
+    }
+
+    private double printProducts(String category) {
+        double sum = 0;
+        System.out.println(category + ":");
+        for (Product p : this.products) {
+            if (category.equals("All") || p.getCategory().name().equals(category)) {
+                System.out.println(p);
+                sum += p.getPrice();
+            }
+        }
+        if (sum == 0) {
+            System.out.println("The purchase list is empty!");
+        }
+        return sum;
     }
 
     public double getBalance() {
